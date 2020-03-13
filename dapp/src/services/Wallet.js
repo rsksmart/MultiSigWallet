@@ -51,23 +51,13 @@
       wallet.getGasPrice = function () {
         return $q(
           function(resolve, reject){
-            $http
-              .get(txDefault.websites.ethGasStation)
-              .then(
-                function(response) {
-                  resolve(response.data.standard)
-                },
-                function (error) {
-                  // Get gas price from Ethereum Node
-                  Web3Service.web3.eth.getGasPrice(function (g_error, g_result) {
-                    if (g_error) {
-                      reject (g_error);
-                    } else {
-                      resolve(g_result);
-                    }
-                  });
+            Web3Service.web3.eth.getGasPrice(function (g_error, g_result) {
+              if (g_error) {
+                reject (g_error);
+              } else {
+                resolve(g_result);
                 }
-              )
+            });
           }
         );
       };
@@ -305,6 +295,7 @@
       wallet.updateWallet = function (w) {
         var wallets = wallet.getAllWallets();
         var address = w.address;
+        address = Web3Service.toChecksumAddress(address, w.chainId);
         if (!wallets[address]) {
           wallets[address] = {};
         }
@@ -328,7 +319,7 @@
           var checksumedAddress;
 
           for (var x in w.owners) {
-            checksumedAddress = Web3Service.toChecksumAddress(w.owners[x].address);
+            checksumedAddress = Web3Service.toChecksumAddress(w.owners[x].address, w.chainId);
             owners[checksumedAddress] = w.owners[x]
           }
         }
@@ -339,6 +330,7 @@
             name: w.name,
             owners: owners,
             tokens: tokens,
+            chainId: w.chainId,
             safeMigrated: w.safeMigrated || false
           }
         );
@@ -509,7 +501,7 @@
         // Save changes to `addressBook`
         if (validJsonConfig.addressBook) {
           // Convert addresses to checksum
-          validJsonConfig.addressBook = Web3Service.toChecksumAddress(validJsonConfig.addressBook);
+          validJsonConfig.addressBook = Web3Service.toChecksumAddress(validJsonConfig.addressBook, $rootScope.chainId);
           localStorage.setItem("addressBook", JSON.stringify(validJsonConfig.addressBook));
         }
         wallet.updates++;
@@ -547,30 +539,30 @@
         *
         */
         // Convert wallets' keys to checksum
-        walletsData = Web3Service.toChecksumAddress(walletsData);
+        walletsData = Web3Service.toChecksumAddress(walletsData, $rootScope.chainId);
         for (var wallet in walletsData) {
-          walletsData[wallet].address = Web3Service.toChecksumAddress(walletsData[wallet].address || wallet);
+          walletsData[wallet].address = Web3Service.toChecksumAddress(walletsData[wallet].address || wallet, walletsData[wallet].chainId);
 
           var owners = {};
           var tokens = {};
 
           // Convert owners
           for (var owner in walletsData[wallet].owners) {
-            owners[Web3Service.toChecksumAddress(owner)] = {
-              address: Web3Service.toChecksumAddress(walletsData[wallet].owners[owner].address || owner),
+            owners[Web3Service.toChecksumAddress(owner, walletsData[wallet].chainId)] = {
+              address: Web3Service.toChecksumAddress(walletsData[wallet].owners[owner].address || owner, walletsData[wallet].chainId),
               name: walletsData[wallet].owners[owner].name,
             }
           }
 
           // Convert tokens
           for (var token in walletsData[wallet].tokens) {
-            tokens[Web3Service.toChecksumAddress(token)] = {};
+            tokens[Web3Service.toChecksumAddress(token, walletsData[wallet].chainId)] = {};
 
             Object.assign(
-              tokens[Web3Service.toChecksumAddress(token)],
+              tokens[Web3Service.toChecksumAddress(token, walletsData[wallet].chainId)],
               walletsData[wallet].tokens[token], 
               {
-                address: Web3Service.toChecksumAddress(walletsData[wallet].tokens[token].address || token)
+                address: Web3Service.toChecksumAddress(walletsData[wallet].tokens[token].address || token, walletsData[wallet].chainId)
               }
             );
           }
@@ -743,10 +735,11 @@
                 // Add wallet, add My account to the object by default, won't be
                 // displayed anyway if user is not an owner, but if it is, name will be used
                 if (Web3Service.coinbase) {
-                  var coinbase = Web3Service.toChecksumAddress(Web3Service.coinbase);
+                  var coinbase = Web3Service.toChecksumAddress(Web3Service.coinbase, $rootScope.chainId);
                   info.owners = {};
                   info.owners[coinbase] = { address: coinbase, name: 'My Account'};
                 }
+                info.chainId = $rootScope.chainId;
                 wallet.updateWallet(info);
                 cb(null, info);
               }

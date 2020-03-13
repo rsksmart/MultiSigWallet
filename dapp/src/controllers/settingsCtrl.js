@@ -2,7 +2,7 @@
   function () {
     angular
     .module("multiSigWeb")
-    .controller("settingsCtrl", function (Web3Service, $scope, Config, CommunicationBus, Utils, Transaction, $uibModal, $sce, $location, $http) {
+    .controller("settingsCtrl", function (Web3Service, $scope, Config, CommunicationBus, Utils, Transaction, $uibModal, $sce, $location, $http, $rootScope) {
 
       // Don't save the following config values to localStorage
       var configBlacklist = [
@@ -45,6 +45,12 @@
             else if (data.chain == 'privatenet') {
               factoryAddress = $scope.config.walletFactoryAddresses['privatenet'];
             }
+            else if (data.chain == 'rsk') {
+              factoryAddress = $scope.config.walletFactoryAddresses['rsk'];
+            }
+            else if (data.chain == 'trsk') {
+              factoryAddress = $scope.config.walletFactoryAddresses['trsk'];
+            }
             else {
               factoryAddress = $scope.config.walletFactoryAddresses['mainnet'];
             }
@@ -76,7 +82,11 @@
             }
 
             $scope.config.walletFactoryAddressList = [factoryAddress]; // Needed by the ui drop-down select list
-
+            $scope.config.chain = data.chain;
+            $rootScope.chain = data.chain;
+            $rootScope.symbol = data.symbol;
+            $rootScope.chainId = data.chainId;
+            $rootScope.dpath = data.dpath;
           }
         );
       }

@@ -2,7 +2,7 @@
   function () {
     angular
       .module('multiSigWeb')
-      .service("Web3Service", function ($window, Utils, $uibModal, Connection, Config, $http) {
+      .service("Web3Service", function ($window, Utils, $uibModal, Connection, Config, $http, $rootScope) {
 
         var factory = {
           coinbase: null,
@@ -25,7 +25,7 @@
           $window.ethereum.enable().then(function (accounts) {
             factory.reloadWeb3Provider(null, callback);
             // Convert to checksummed addresses
-            accounts = factory.toChecksumAddress(accounts);
+            accounts = factory.toChecksumAddress(accounts, $rootScope.chainId);
             // Set accounts and coinbase
             factory.accounts = accounts;
             factory.coinbase = accounts[0];
@@ -43,6 +43,14 @@
             (window.web3.currentProvider.constructor.name === 'MetamaskInpageProvider' || window.web3.currentProvider.isMetaMask !== 'undefined')
           );
         };
+
+        factory.getAccounts = function () {
+          return toChecksumAddress(factory.accounts, $rootScope.chainId);
+        }
+
+        factory.getCoinbase = function () {
+          return toChecksumAddress(factory.coinbase, $rootScope.chainId);
+        }
 
         /**
         * Reloads web3 provider
@@ -166,38 +174,59 @@
           }
         };
 
+        factory.isAddress = function(address, chainId) {
+          if (chainId === 30 || chainId === 31) {
+            return EthJS.Util.isValidChecksumAddress(address, chainId);
+          }
+          // This is can be solved with the same function from ethereumjs-util@6.2.0 with null as chainId
+          return factory.web3.isAddress(address);
+        }
+
+        factory.doToChecksumAddress = function (address, chainId) {
+          if (chainId === 30 || chainId === 31) {
+            return EthJS.Util.toChecksumAddress(address, chainId);
+          }
+          // This is can be solved with the same function from ethereumjs-util@6.2.0 with null as chainId
+          return factory.web3.toChecksumAddress(address);
+        }
+
         /**
          * Converts an object to a checksummed address when possible.
          * Accepts objects, strings and arrays.
          */
-        factory.toChecksumAddress = function (item) {
+        factory.toChecksumAddress = function (item, chainId) {
           var checkSummedItem;
           if (item instanceof Array) {
             checkSummedItem = [];
             for (var x = 0; x < item.length; x++) {
-              checkSummedItem.push(factory.web3.toChecksumAddress(item[x]))
+                checkSummedItem.push(factory.doToChecksumAddress(item[x], chainId))
             }
           } else if (typeof item == "string") {
-            checkSummedItem = factory.web3.toChecksumAddress(item)
+              checkSummedItem = factory.doToChecksumAddress(item, chainId)
           } else if (typeof item == "object") {
             checkSummedItem = {};
             var checkSummedKey;
             for (key in item) {
-              checkSummedKey = key.startsWith('0x') ? factory.web3.toChecksumAddress(key) : key;
-              checkSummedItem[checkSummedKey] = (typeof item[key] == "string" && item[key].startsWith('0x')) ? factory.web3.toChecksumAddress(item[key]) : item[key];
+              // if object has its own chainId, that is the right one to use
+              if (item[key] && item[key].address && item[key].name) {
+                chainId = item[key].chainId;
+              }
+
+              checkSummedKey = key.startsWith('0x') ? factory.doToChecksumAddress(key, chainId) : key;
+              checkSummedItem[checkSummedKey] = (typeof item[key] == "string" && item[key].startsWith('0x')) ? factory.doToChecksumAddress(item[key], chainId) : item[key];
 
               if (checkSummedItem[checkSummedKey] && checkSummedItem[checkSummedKey].address) {
-                checkSummedItem[checkSummedKey].address = factory.web3.toChecksumAddress(checkSummedItem[checkSummedKey].address);
+                checkSummedItem[checkSummedKey].address = factory.doToChecksumAddress(checkSummedItem[checkSummedKey].address, chainId);
               }
 
               // specific to Transaction object
               if (checkSummedItem[checkSummedKey] && checkSummedItem[checkSummedKey].info) {
                 // Convert info object to checksummed
-                checkSummedItem[checkSummedKey].info = factory.toChecksumAddress(checkSummedItem[checkSummedKey].info);
+                checkSummedItem[checkSummedKey].info = factory.doToChecksumAddress(checkSummedItem[checkSummedKey].info, chainId);
               }
-              if (checkSummedItem[checkSummedKey] && checkSummedKey == "info") {
+              if (checkSummedItem[checkSummedKey] && checkSummedKey == "info" && typeof checkSummedItem[checkSummedKey] == "string") {
                 // Convert info object to checksummed
-                checkSummedItem[checkSummedKey] = factory.toChecksumAddress(checkSummedItem[checkSummedKey]);
+                checkSummedItem[checkSummedKey] = factory.doToChecksumAddress(checkSummedItem[checkSummedKey], chainId);
               }
             }
           } else {
@@ -344,7 +373,7 @@
               }
               else {
                 // Convert to Checksummed addresses
-                accounts = factory.toChecksumAddress(accounts);
+                accounts = factory.toChecksumAddress(accounts, $rootScope.chainId);
                 factory.accounts = accounts.length ? accounts : [];
 
                 if (factory.coinbase && factory.accounts.indexOf(factory.coinbase) != -1) {
@@ -403,7 +432,7 @@
 
                     } else {
                       // Convert to Checksummed addresses
-                      accounts = factory.toChecksumAddress(accounts);
+                      accounts = factory.toChecksumAddress(numberOfAccounts, $rootScope.chainId);
                       factory.accounts = accounts;
                       factory.coinbase = factory.accounts[0];
                       // Set isConnected to true and show "success" message
@@ -465,7 +494,7 @@
             getAccounts: function (cb) {
               $http.get("http://localhost:" + ledgerPort + "/accounts").success(function (accounts) {
                 // Convert to Checksummed addresses
-                accounts = factory.toChecksumAddress(accounts);
+                accounts = factory.toChecksumAddress(numberOfAccounts);
                 cb(null, accounts);
               }).error(cb);
             },
@@ -533,7 +562,7 @@
           var web3Provider = new HookedWalletSubprovider({
             getAccounts: function (cb) {
               if (!factory.accounts.length) {
-                TrezorConnect.ethereumGetAddress("m/44'/60'/0'/0/0", function (response) {
+                TrezorConnect.ethereumGetAddress($rootScope.dpath, function (response) {
                   if (response.success) {
                     // Convert to Checksummed address
                     factory.accounts = factory.toChecksumAddress(["0x" + response.address]);
@@ -556,8 +585,9 @@
                 if (!txData.value) {
                   txData.value = '0x00'
                 }
+                //TODO ALE: dpath?
                 TrezorConnect.ethereumSignTx(
-                  "m/44'/60'/0'/0/0", // address path - either array or string, see example
+                  $rootScope.dpath, // address path - either array or string, see example
                   Utils.trezorHex(txData.nonce),     // nonce - hexadecimal string
                   Utils.trezorHex(txData.gasPrice), // gas price - hexadecimal string
                   Utils.trezorHex(txData.gas), // gas limit - hexadecimal string

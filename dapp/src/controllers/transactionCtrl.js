@@ -37,7 +37,7 @@
             var savedABI = $scope.transactionsMap[txKey].info?abis[$scope.transactionsMap[txKey].info.to]:null;
             
             if ($scope.transactionsMap[txKey].info && (!$scope.transactionsMap[txKey].decodedData || $scope.transactionsMap[txKey].decodedData.notDecoded || ($scope.transactionsMap[txKey].usedABI && (!savedABI || savedABI.abi )))) {
-              if ($scope.transactionsMap[txKey].info.input !== "0x" && $scope.transactionsMap[txKey].info.input.data !== "0x0") {
+              if ($scope.transactionsMap[txKey].info.input !== "0x" && $scope.transactionsMap[txKey].info.input && $scope.transactionsMap[txKey].info.input.data !== "0x0") {
                 // Decode data
                 var decoded = ABI.decode($scope.transactionsMap[txKey].info.input);
                 $scope.transactionsMap[txKey].decodedData = decoded;

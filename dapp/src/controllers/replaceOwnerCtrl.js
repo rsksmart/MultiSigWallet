@@ -2,11 +2,11 @@
   function () {
     angular
     .module("multiSigWeb")
-    .controller("replaceOwnerCtrl", function ($scope, Web3Service, Wallet, Utils, Transaction, wallet, owner, $uibModalInstance) {
+    .controller("replaceOwnerCtrl", function ($scope, Web3Service, Wallet, Utils, Transaction, wallet, owner, $uibModalInstance, $rootScope) {
       $scope.owner = owner;
       $scope.send = function () {
         // Convert owner address to checksum address
-        $scope.newOwner = Web3Service.toChecksumAddress($scope.newOwner);
+        $scope.newOwner = Web3Service.toChecksumAddress($scope.newOwner, $rootScope.chainId);
         
         Wallet.replaceOwner(wallet.address, $scope.owner.address, $scope.newOwner, {onlySimulate: false}, function (e, tx) {
           if (e) {

@@ -12,7 +12,7 @@
 
         function processReceipt(e, receipt) {
           if (!e && receipt) {
-            receipt = Web3Service.toChecksumAddress(receipt);
+            receipt = Web3Service.toChecksumAddress(receipt, $rootScope.chainId);
             receipt.decodedLogs = Wallet.decodeLogs(receipt.logs);
             factory.update(receipt.transactionHash, { receipt: receipt });
 
@@ -27,7 +27,7 @@
         function getTransactionInfo(e, info) {
           if (!e && info) {
             // Convert info object to an object containing checksum addresses
-            info = Web3Service.toChecksumAddress(info);
+            info = Web3Service.toChecksumAddress(info, $rootScope.chainId);
             factory.update(info.hash, { info: info });
           }
         }
@@ -41,7 +41,7 @@
         */
         factory.add = function (tx) {
           // Convert incoming object's addresses to checksummed ones
-          tx = Web3Service.toChecksumAddress(tx);
+          tx = Web3Service.toChecksumAddress(tx, $rootScope.chainId);
           
           var transactions = factory.get();
           transactions[tx.txHash] = tx;
@@ -65,8 +65,8 @@
         factory.update = function (txHash, newObj) {
           var transactions = factory.get();
           // Convert incoming object's addresses to checksummed ones
-          newObj = Web3Service.toChecksumAddress(newObj);
-          txHash = Web3Service.toChecksumAddress(txHash);
+          newObj = Web3Service.toChecksumAddress(newObj, $rootScope.chainId);
+          txHash = Web3Service.toChecksumAddress(txHash, $rootScope.chainId);
           Object.assign(transactions[txHash], newObj);
           localStorage.setItem("transactions", JSON.stringify(transactions));
           factory.updates++;
@@ -316,28 +316,61 @@
               }
               else if (block && block.hash == "0xd4e56740f876aef8c010b86a40d5f56745a118d0906a34e69aec8c0db1cb8fa3") {
                 data.chain = "mainnet";
+                data.name = "Mainnet";
+                data.symbol = "ETH";
                 data.etherscan = "https://etherscan.io";
                 data.walletFactoryAddress = txDefault.walletFactoryAddresses["mainnet"].address;
+                data.dpath = "m/44'/60'/0'/0/0";
               }
               else if (block && block.hash == "0x41941023680923e0fe4d74a34bdac8141f2540e3ae90623718e47d66d1ca4a2d") {
                 data.chain = "ropsten";
+                data.name = "Ropsten";
+                data.symbol = "ETH";
                 data.etherscan = "https://ropsten.etherscan.io";
                 data.walletFactoryAddress = txDefault.walletFactoryAddresses["ropsten"].address;
+                data.dpath = "m/44'/60'/0'/0/0";
               }
               else if (block && block.hash == "0xa3c565fc15c7478862d50ccd6561e3c06b24cc509bf388941c25ea985ce32cb9") {
                 data.chain = "kovan";
+                data.name = "Kovan";
+                data.symbol = "ETH";
                 data.etherscan = "https://kovan.etherscan.io";
                 data.walletFactoryAddress = txDefault.walletFactoryAddresses["kovan"].address;
+                data.dpath = "m/44'/60'/0'/0/0";
               }
               else if (block && block.hash == "0x6341fd3daf94b748c72ced5a5b26028f2474f5f00d824504e4fa37a75767e177") {
                 data.chain = "rinkeby";
+                data.name = "Rinkeby";
+                data.symbol = "ETH";
                 data.etherscan = "https://rinkeby.etherscan.io";
                 data.walletFactoryAddress = txDefault.walletFactoryAddresses["rinkeby"].address;
+                data.dpath = "m/44'/60'/0'/0/0";
+              }
+              else if (block && block.hash == "0x5d2570eee4405f2fb295b29ba683c688c0701a041c36f1e134625eb504ee6856") {
+                data.chain = "rsk";
+                data.name = "RSK Mainnet";
+                data.symbol = "R-BTC";
+                data.chainId = 30;
+                data.etherscan = "https://explorer.rsk.co";
+                data.walletFactoryAddress = txDefault.walletFactoryAddresses["rsk"].address;
+                data.dpath = "m/44'/137'/0'/0/0";
+              }
+              else if (block && block.hash == "0x210bb2c943708687a05df3b7d8d7e2a280769b82691fd69d3dcfe76963eac521") {
+                data.chain = "trsk";
+                data.name = "RSK Testnet";
+                data.symbol = "tR-BTC";
+                data.chainId = 31;
+                data.etherscan = "https://explorer.testnet.rsk.co";
+                data.walletFactoryAddress = txDefault.walletFactoryAddresses["trsk"].address;
+                data.dpath = "m/44'/37310'/0'/0/0";
               }
               else {
                 data.chain = "privatenet";
+                data.name = "Privatenet"
+                data.symbol = "ETH";
                 data.etherscan = "https://testnet.etherscan.io";
                 data.walletFactoryAddress = txDefault.walletFactoryAddresses["privatenet"].address;
+                data.dpath = "m/44'/60'/0'/0/0";
               }
 
               resolve(data);

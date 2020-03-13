@@ -256,7 +256,7 @@ angular.module('multiSigWeb').run(['$templateCache', function($templateCache) {
     "    <div class=\"panel-body\">\n" +
     "      <div class=\"row\">\n" +
     "        <div class=\"col-md-6 form-group\">\n" +
-    "          <label for=\"node\">Ethereum node</label>\n" +
+    "          <label for=\"node\">Ethereum-like node</label>\n" +
     "          <editable-select\n" +
     "            ng-model=\"config.selectedEthereumNode\"\n" +
     "            options=\"config.ethereumNodes\"\n" +
@@ -380,7 +380,7 @@ angular.module('multiSigWeb').run(['$templateCache', function($templateCache) {
     "          ng-bind-html=\"getDestinationOrContract(transaction) | dashIfEmpty\">\n" +
     "          </a>\n" +
     "        </td>\n" +
-    "        <td ng-bind-html=\"transaction.info.value | ether | dashIfEmpty\">\n" +
+    "        <td ng-bind-html=\"transaction.info.value | ether:chain | dashIfEmpty\">\n" +
     "        </td>\n" +
     "        <td>\n" +
     "          <div ng-show=\"transaction.decodedData.title\" class=\"row\">\n" +
@@ -393,7 +393,7 @@ angular.module('multiSigWeb').run(['$templateCache', function($templateCache) {
     "                {{param.name}}:\n" +
     "                <span popover-enable=\"param.value\" popover-trigger=\"'mouseenter'\"\n" +
     "                  uib-popover-template=\"'partials/paramValueData.html'\">\n" +
-    "                  {{param.value|addressCanBeOwner:wallet|logParam:(param.name == 'value' && transaction.decodedData.title == 'submitTransaction')}}\n" +
+    "                  {{param.value|addressCanBeOwner:wallet|logParam:(param.name == 'value' && transaction.decodedData.title == 'submitTransaction'):chain}}\n" +
     "                </span>\n" +
     "              </li>\n" +
     "            </ul>\n" +
@@ -426,7 +426,7 @@ angular.module('multiSigWeb').run(['$templateCache', function($templateCache) {
     "                <li ng-repeat=\"param in log.events track by $index\">\n" +
     "                  {{param.name}}:\n" +
     "                  <span uib-popover=\"{{param.value}}\" popover-enable=\"param.value && param.value.toString().length > 7\" popover-trigger=\"'mouseenter'\">\n" +
-    "                    {{param.value|addressCanBeOwner|logParam:(param.name == 'value')}}\n" +
+    "                    {{param.value|addressCanBeOwner|logParam:(param.name == 'value'):chain}}\n" +
     "                  </span>\n" +
     "                </li>\n" +
     "              </ul>\n" +
@@ -465,10 +465,10 @@ angular.module('multiSigWeb').run(['$templateCache', function($templateCache) {
   $templateCache.put('src/partials/wallet.html',
     "<div class=\"page-header\">\n" +
     "  <h1>\n" +
-    "    {{wallet.name}} {{balance|ether}}\n" +
+    "    {{wallet.name}} {{balance|ether:chain}}\n" +
     "  </h1>\n" +
     "  <h5 class=\"grey\">{{wallet.address}}</h5>\n" +
-    "  <span class=\"btn btn-success\" ng-click=\"showSafeMigrationModal()\">Safe Multisig Migration</span>\n" +
+    "  <span class=\"btn btn-success\" ng-click=\"showSafeMigrationModal()\" ng-show=\"{{chain != 'trsk' && chain != 'rsk'}}\">Safe Multisig Migration</span>\n" +
     "</div>\n" +
     "<!-- Owners panel -->\n" +
     "<div class=\"panel panel-default\">\n" +
@@ -691,7 +691,7 @@ angular.module('multiSigWeb').run(['$templateCache', function($templateCache) {
     "          </div>\n" +
     "        </td>\n" +
     "        <td>\n" +
-    "          {{transactions[txId].value|ether}}\n" +
+    "          {{transactions[txId].value|ether:chain}}\n" +
     "        </td>\n" +
     "        <td>\n" +
     "          <div class=\"text-center\" ng-show=\"!transactions[txId].dataDecoded.title\">\n" +
@@ -845,7 +845,7 @@ angular.module('multiSigWeb').run(['$templateCache', function($templateCache) {
     "          </div>\n" +
     "        </td>\n" +
     "        <td>\n" +
-    "          <span value-or-dash-by-connectivity=\"{{wallet.balance|ether}}\">{{wallet.balance|ether}}</span>\n" +
+    "          <span value-or-dash-by-connectivity=\"{{wallet.balance|ether:chain}}\">{{wallet.balance|ether:chain}}</span>\n" +
     "          <button type=\"button\" disabled-if-no-accounts-or-wallet-available=\"{{wallet.address}}\"\n" +
     "            class=\"btn btn-default btn-sm pull-right\"\n" +
     "            ng-click=\"deposit(wallet)\">\n" +
@@ -861,7 +861,7 @@ angular.module('multiSigWeb').run(['$templateCache', function($templateCache) {
     "          </button>\n" +
     "        </td>\n" +
     "        <td>\n" +
-    "          <span value-or-dash-by-connectivity=\"{{wallet.limit|ether}}\">{{wallet.limit|ether}}</span>\n" +
+    "          <span value-or-dash-by-connectivity=\"{{wallet.limit|ether:chain}}\">{{wallet.limit|ether:chain}}</span>\n" +
     "          <button type=\"button\" disabled-if-no-accounts-or-wallet-available=\"{{wallet.address}}\"\n" +
     "            class=\"btn btn-default btn-sm pull-right\"\n" +
     "            ng-click=\"setLimit(wallet)\">\n" +
@@ -869,7 +869,7 @@ angular.module('multiSigWeb').run(['$templateCache', function($templateCache) {
     "          </button>\n" +
     "        </td>\n" +
     "        <td>\n" +
-    "          <span value-or-dash-by-connectivity=\"{{wallet.maxWithdraw|ether}}\">{{wallet.maxWithdraw|ether}}</span>\n" +
+    "          <span value-or-dash-by-connectivity=\"{{wallet.maxWithdraw|ether:chain}}\">{{wallet.maxWithdraw|ether:chain}}</span>\n" +
     "          <button type=\"button\" disabled-if-no-accounts-or-wallet-available=\"{{wallet.address}}\"\n" +
     "            class=\"btn btn-default btn-sm pull-right\"\n" +
     "            data-action=\"withdraw\"\n" +
@@ -1255,7 +1255,7 @@ angular.module('multiSigWeb').run(['$templateCache', function($templateCache) {
     "<form class=\"form\" name=\"form\">\n" +
     "  <div class=\"modal-body\">\n" +
     "    <div class=\"form-group\">\n" +
-    "      <label for=\"value\">Amount (ETH):</label>\n" +
+    "      <label for=\"value\">Amount ({{symbol}}):</label>\n" +
     "      <input id=\"value\" type=\"number\" class=\"form-control\" ng-model=\"amount\" step=\"any\" min=\"0\" max=\"999999999999999\" required >\n" +
     "    </div>\n" +
     "  </div>\n" +
@@ -1861,7 +1861,7 @@ angular.module('multiSigWeb').run(['$templateCache', function($templateCache) {
     "      <input id=\"required\" type=\"number\" class=\"form-control\" ng-min=\"1\" ng-max=\"{{maxAllowedConfirmations}}\" ng-model=\"confirmations\" required />\n" +
     "    </div>\n" +
     "    <div class=\"form-group\">\n" +
-    "      <label for=\"daily-limit\"> Daily limit (ETH) </label>\n" +
+    "      <label for=\"daily-limit\"> Daily limit ({{symbol}}) </label>\n" +
     "      <input id=\"daily-limit\" type=\"number\" class=\"form-control\" ng-min=\"0\" max=\"999999999999999\" ng-model=\"limit\" required />\n" +
     "    </div>\n" +
     "    <div class=\"panel panel-default\">\n" +
@@ -2504,7 +2504,7 @@ angular.module('multiSigWeb').run(['$templateCache', function($templateCache) {
     "      <input type=\"text\" class=\"form-control\" ng-model=\"name\" name=\"name\" />\n" +
     "    </div>\n" +
     "    <div class=\"form-group\">\n" +
-    "      <label for=\"value\">Amount (ETH)</label>\n" +
+    "      <label for=\"value\">Amount ({{symbol}})</label>\n" +
     "      <input id=\"value\" type=\"number\" class=\"form-control\" ng-model=\"tx.value\" min=\"0\" max=\"999999999999999\" ng-required=\"!abi\">\n" +
     "    </div>\n" +
     "    <div class=\"form-group\">\n" +
@@ -2559,7 +2559,7 @@ angular.module('multiSigWeb').run(['$templateCache', function($templateCache) {
     "<form name=\"form\" class=\"form\">\n" +
     "  <div class=\"modal-body\">\n" +
     "    <div class=\"form-group\">\n" +
-    "      <label for=\"limit\">Daily limit (ETH)</label>\n" +
+    "      <label for=\"limit\">Daily limit ({{symbol}})</label>\n" +
     "      <input id=\"limit\" type=\"number\" step=\"any\" ng-model=\"limit\" min=\"0\" max=\"999999999999999\" class=\"form-control\" required />\n" +
     "    </div>\n" +
     "  </div>\n" +
@@ -2820,7 +2820,7 @@ angular.module('multiSigWeb').run(['$templateCache', function($templateCache) {
     "      <input type=\"text\" class=\"form-control\" ng-model=\"name\" name=\"name\" />\n" +
     "    </div>\n" +
     "    <div class=\"form-group\">\n" +
-    "      <label for=\"value\">Amount (ETH)</label>\n" +
+    "      <label for=\"value\">Amount ({{symbol}})</label>\n" +
     "      <input id=\"value\" type=\"number\" class=\"form-control\" ng-model=\"tx.value\" min=\"0\" max=\"999999999999999\" ng-required=\"!abi\">\n" +
     "    </div>\n" +
     "    <div class=\"form-group\">\n" +
@@ -2901,7 +2901,7 @@ angular.module('multiSigWeb').run(['$templateCache', function($templateCache) {
     "<form name=\"form\" class=\"form\">\n" +
     "  <div class=\"modal-body\">\n" +
     "    <div class=\"form-group\">\n" +
-    "      <label for=\"value\">Amount (ETH)</label>\n" +
+    "      <label for=\"value\">Amount ({{symbol}})</label>\n" +
     "      <input id=\"value\" type=\"number\" class=\"form-control\" ng-model=\"tx.value\" ng-min=\"0\" max=\"999999999999999\" required>\n" +
     "    </div>\n" +
     "    <div class=\"form-group\">\n" +

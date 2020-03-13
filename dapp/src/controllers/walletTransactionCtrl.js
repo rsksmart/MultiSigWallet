@@ -6,7 +6,7 @@
   function () {
     angular
     .module("multiSigWeb")
-    .controller("walletTransactionCtrl", function (Web3Service, $scope, Wallet, Transaction, Utils, wallet, $uibModal, $uibModalInstance, ABI) {
+    .controller("walletTransactionCtrl", function (Web3Service, $scope, Wallet, Transaction, Utils, wallet, $uibModal, $uibModalInstance, ABI, $rootScope) {
 
       $scope.wallet = wallet;
       $scope.abiArray = null;
@@ -68,7 +68,7 @@
       $scope.updateABI = function () {
         var to = $scope.tx.to;
         if (to && to.length > 40) {
-          to = Web3Service.toChecksumAddress(to);
+          to = Web3Service.toChecksumAddress(to, $rootScope.chainId);
           $scope.abis = ABI.get();
           if ($scope.abis[to]) {
             $scope.abi = JSON.stringify($scope.abis[to].abi);

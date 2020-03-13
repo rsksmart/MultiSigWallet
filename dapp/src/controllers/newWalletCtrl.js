@@ -2,13 +2,13 @@
   function () {
     angular
     .module("multiSigWeb")
-    .controller("newWalletCtrl", function ($scope, $uibModalInstance, Utils, Transaction, Wallet, Token, callback, Web3Service) {
+    .controller("newWalletCtrl", function ($scope, $uibModalInstance, Utils, Transaction, Wallet, Token, callback, Web3Service, $rootScope) {
 
       $scope.newOwner = {};
       $scope.owners = {};
-      $scope.owners[Web3Service.coinbase] = {
+      $scope.owners[Web3Service.toChecksumAddress(Web3Service.coinbase, $rootScope.chainId)] = {
         name: 'My account',
-        address: Web3Service.coinbase
+        address: Web3Service.toChecksumAddress(Web3Service.coinbase, $rootScope.chainId)
       };
 
       $scope.confirmations = 1;
@@ -31,10 +31,11 @@
                 // Execute transaction
                 Transaction.add({txHash: contract.transactionHash, callback: function (receipt) {
                   // Save wallet
-                  Wallet.updateWallet({name: $scope.name, address: receipt.contractAddress, owners: $scope.owners});
+                  const checksummedAddress = Web3Service.toChecksumAddress(receipt.contractAddress, $rootScope.chainId);
+                  Wallet.updateWallet({name: $scope.name, address: checksummedAddress, owners: $scope.owners, chainId: $rootScope.chainId});
                   Utils.success("Wallet deployed");
-                  Transaction.update(contract.transactionHash, {multisig: receipt.contractAddress});
-                  Token.setDefaultTokens(receipt.contractAddress);
+                  Transaction.update(contract.transactionHash, {multisig: checksummedAddress});
+                  Token.setDefaultTokens(checksummedAddress);
                   callback();
                 }});
                 Utils.notification("Deployment transaction was sent.");
@@ -70,9 +71,9 @@
                 {
                   txHash: tx,
                   callback: function(receipt){
-                    var walletAddress = Web3Service.toChecksumAddress(receipt.decodedLogs[0].events[1].value);
+                    var walletAddress = Web3Service.toChecksumAddress(receipt.decodedLogs[0].events[1].value, $rootScope.chainId);
                     Utils.success("Wallet deployed");
-                    Wallet.updateWallet({name: $scope.name, address: walletAddress, owners: $scope.owners});
+                    Wallet.updateWallet({name: $scope.name, address: walletAddress, owners: $scope.owners, chainId: $rootScope.chainId});
                     Transaction.update(tx, {multisig: walletAddress});
                     callback();
                   }
@@ -103,7 +104,7 @@
 
       $scope.addOwner = function () {
         // Checksum owner's address
-        $scope.newOwner = Web3Service.toChecksumAddress($scope.newOwner);
+        $scope.newOwner = Web3Service.toChecksumAddress($scope.newOwner, $rootScope.chainId);
         $scope.owners[$scope.newOwner.address] = $scope.newOwner;
         $scope.newOwner = {}; // reset values
         $scope.maxAllowedConfirmations = Object.keys($scope.owners).length

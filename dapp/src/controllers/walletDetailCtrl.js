@@ -2,12 +2,13 @@
   function () {
     angular
       .module("multiSigWeb")
-      .controller("walletDetailCtrl", function ($scope, $filter, $routeParams, $uibModal, $interval, $location, ABI, Token, Utils, Wallet, Web3Service) {
+      .controller("walletDetailCtrl", function ($scope, $filter, $routeParams, $uibModal, $interval, $location, ABI, Token, Utils, Wallet, Web3Service, $rootScope) {
         $scope.wallet = {};
 
         // Javascript doesn't have a deep object copy, this is a patch
         // Convert $routeParams.address to checksum address, users might be using lowercase addresses
-        var walletCopy = Wallet.getAllWallets()[Web3Service.toChecksumAddress($routeParams.address)];
+        //TODO ALE: adapt toChecksumAddress to EIP1191
+        var walletCopy = Wallet.getAllWallets()[Web3Service.toChecksumAddress($routeParams.address, $rootScope.chainId)];
 
         if (!walletCopy) {
           // redirect to 404
@@ -85,7 +86,7 @@
                     return;
                 }
 
-                $scope.data.owners = owners.map(function (address) { return Web3Service.toChecksumAddress(address); });
+                $scope.data.owners = owners.map(function (address) { return Web3Service.toChecksumAddress(address, $rootScope.chainId); });
               }).call();
 
               $scope.create = function () {
@@ -141,7 +142,7 @@
               .getOwners(
                 $scope.wallet.address,
                 function (e, owners) {
-                  $scope.owners = Web3Service.toChecksumAddress(owners);
+                  $scope.owners = Web3Service.toChecksumAddress(owners, $rootScope.chainId);
                   // Check if the owners are in the wallet.owners object
                   var walletOwnerskeys = $scope.wallet.owners ? Object.keys($scope.wallet.owners) : [];
 
@@ -277,9 +278,11 @@
               $scope.updateParams();
               $scope.interval = $interval($scope.updateParams, 15000);
               
-              // Handle migration modal
-              if (!walletCopy.safeMigrated) {
-                $scope.showSafeMigrationModal();
+              if ($rootScope.chainId != 30 && $rootScope.chainId != 31) {
+                // Handle migration modal
+                if (!walletCopy.safeMigrated) {
+                  $scope.showSafeMigrationModal();
+                }
               }
             });
         }
@@ -317,13 +320,13 @@
                   title: "Remove owner " + $filter("addressCanBeOwner")(owner, $scope.wallet)
                 };
               case "cea08621":
-                var limit = $filter("ether")("0x" + tx.data.slice(11));
+                var limit = $filter("ether")("0x" + tx.data.slice(11), $rootScope.chain);
                 return {
                   title: "Change daily limit to " + limit
                 };
               case "a9059cbb":
                 var tokenAddress = tx.to;
-                var account = Web3Service.toChecksumAddress("0x" + tx.data.slice(34, 74));
+                var account = Web3Service.toChecksumAddress("0x" + tx.data.slice(34, 74), $rootScope.chainId);
                 var token = {};
                 Object.assign(token, $scope.wallet.tokens[tokenAddress]);
                 token.balance = new Web3().toBigNumber("0x" + tx.data.slice(74));
@@ -375,12 +378,12 @@
           // Check if trasanction was sent to an item in address book
           else if ($scope.addressBook && $scope.addressBook[tx.to]) {
             return {
-              title: "Transfer " + $filter("ether")(tx.value) + " to " + $scope.addressBook[tx.to].name
+              title: "Transfer " + $filter("ether")(tx.value, $rootScope.chain) + " to " + $scope.addressBook[tx.to].name
             }
           }
           else {
             return {
-              title: "Transfer " + $filter("ether")(tx.value) + " to " + $filter("addressCanBeOwner")(tx.to, $scope.wallet)
+              title: "Transfer " + $filter("ether")(tx.value, $rootScope.chain) + " to " + $filter("addressCanBeOwner")(tx.to, $scope.wallet)
             };
           }
         };
@@ -440,7 +443,7 @@
                   Wallet.getTransaction($scope.wallet.address, tx, function (e, info) {
                     if (!e && info.to) {
                       // Convert to checksum address
-                      info.to = Web3Service.toChecksumAddress(info.to);
+                      info.to = Web3Service.toChecksumAddress(info.to, $rootScope.chainId);
                       $scope.$apply(function () {
                         // Added reference to the wallet
                         info.from = $scope.wallet.address;
@@ -464,7 +467,7 @@
                 txBatch.add(
                   Wallet.getConfirmations($scope.wallet.address, tx, function (e, confirmations) {
                     $scope.$apply(function () {
-                      $scope.transactions[tx].confirmations = Web3Service.toChecksumAddress(confirmations);
+                      $scope.transactions[tx].confirmations = Web3Service.toChecksumAddress(confirmations, $rootScope.chainId);
                       // If the current user is among the array of confirmations, we can set the transaction
                       // as confirmed by that user
                       if ($scope.transactions[tx].confirmations.indexOf(Web3Service.coinbase) != -1) {

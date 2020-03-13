@@ -50,7 +50,7 @@
       };
     })
     .filter('logParam', function ($filter) {
-      return function (log, isEther) {
+      return function (log, isEther, chain) {
         if (log && Array.isArray(log)) {
           return log.reduce(function (finalString, address) {
             if (address.indexOf("0x") == -1){
@@ -69,7 +69,7 @@
         }
         else if ( log && log.match(/^[0-9]+$/) !== null) {
           if (isEther) {
-            return $filter('ether')(log);
+            return $filter('ether')(log, chain);
           }
           else if(log.toString().length < 8){
             return log.toString().slice(0, 7);
@@ -84,22 +84,40 @@
       };
     })
     .filter('ether', function () {
-      return function (num) {
+      return function (num, chain) {
+        var result = "";
         if (num) {
           var casted = new Web3().toBigNumber(num);
           if (casted.gt(0)) {
             var ether = casted.div('1e18');
             if (ether.gt(1)) {
-              return ether.toPrecision(Math.floor(Math.log(ether.toNumber())/Math.log(10) + 3)).toString(10) + " ETH";
+              result = ether.toPrecision(Math.floor(Math.log(ether.toNumber())/Math.log(10) + 3)).toString(10);
             }
             else {
-              return ether.toPrecision(2).toString() + " ETH";
+              result = ether.toPrecision(2).toString();
             }
 
           }
           else {
-            return "0.00 ETH";
+            result = "0.00";
           }
+
+          if (chain) {
+            switch (chain) {
+              case 'rsk':
+                result = result + " R-BTC";
+                break;
+              case 'trsk':
+                result = result + " tR-BTC"
+                break;
+              default:
+                result = result + " ETH";
+            }
+
+            return result;
+          }
+
+          return result + " ETH";
         }
         return null;
       };
@@ -189,9 +207,9 @@
       };
     })
     .filter('addressCanBeToken', function (Web3Service) {
-      return function (addressCandidate, wallet) {
+      return function (addressCandidate, wallet, chainId) {
         if (addressCandidate && addressCandidate.indexOf && addressCandidate.indexOf("0x") != -1) {
-          addressCandidate = Web3Service.toChecksumAddress(addressCandidate);
+          addressCandidate = Web3Service.toChecksumAddress(addressCandidate, chainId);
           if (wallet.tokens) {
             var foundToken = null;
             var keys = Object.keys(wallet.tokens);
