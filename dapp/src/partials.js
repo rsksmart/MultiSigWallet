@@ -1190,7 +1190,7 @@ angular.module('multiSigWeb').run(['$templateCache', function($templateCache) {
     "                max=\"999999999999999\" required >\n" +
     "        </div>\n" +
     "        <div class=\"form-group\">\n" +
-    "            <label for=\"value\">Tx fees (ETH):</label>\n" +
+    "            <label for=\"value\">Tx fees ({{symbol}}):</label>\n" +
     "            <input id=\"value\" disabled type=\"number\" class=\"form-control\" ng-model=\"txFee\" step=\"any\" min=\"0\" max=\"999999999999999\" required >\n" +
     "        </div>\n" +
     "    </div>\n" +
