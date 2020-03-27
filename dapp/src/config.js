@@ -196,11 +196,11 @@ var txDefault = {
     },
     'rsk': {
       name: 'RSK Mainnet',
-      address: '0xd79426bcee5b46fde413ededeb38364b3e666097'
+      address: '0xb5400cf930718b5a9d68f8030dde733afa7ea937'
     },
     'trsk': {
       name: 'RSK Testnet',
-      address: '0xd79426bcee5b46fde413ededeb38364b3e666097'
+      address: '0xcdd68ea5dbee91e74acf85372ba6125801951310'
     }
   }
 };
