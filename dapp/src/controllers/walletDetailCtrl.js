@@ -98,11 +98,11 @@
                   ownersNames.push(wallet.owners[address].name);
                 }
 
-                var url = 'https://gnosis-safe.io/open';
-                url += '?name=' + wallet.name;
+                var url = 'https://gnosis-safe.io/app/#/open';
+                url += '?name=' + encodeURI(wallet.name);
                 url += '&threshold=' + $scope.data.threshold;
                 url += '&owneraddresses=' + ownersAddresses.join(',');
-                url += '&ownernames=' + ownersNames.join(',');
+                url += '&ownernames=' + encodeURI(ownersNames.join(','));
 
                 window.open(url);
                 $scope.dismiss();
