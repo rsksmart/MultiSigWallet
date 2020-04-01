@@ -130,6 +130,18 @@ var txDefaultOrig =
       'name': 'Wrapped Ether',
       'symbol': 'WETH',
       'decimals': 18
+    },
+    {
+      'address': '0x19f64674d8a5b4e652319f5e239efd3bc969a1fe',
+      'name': 'tRIF Token',
+      'symbol': 'tRIF',
+      'decimals': 18
+    },
+    {
+      'address': '0x2acc95758f8b5f583470ba265eb685a8f45fc9d5',
+      'name': 'RIF Token',
+      'symbol': 'RIF',
+      'decimals': 18
     }
   ]
 };
@@ -181,6 +193,14 @@ var txDefault = {
     'privatenet': {
       name: 'Privatenet',
       address: '0xd79426bcee5b46fde413ededeb38364b3e666097'
+    },
+    'rsk': {
+      name: 'RSK Mainnet',
+      address: '0xb5400cf930718b5a9d68f8030dde733afa7ea937'
+    },
+    'trsk': {
+      name: 'RSK Testnet',
+      address: '0xcdd68ea5dbee91e74acf85372ba6125801951310'
     }
   }
 };

@@ -2,7 +2,7 @@
   function () {
     angular
       .module('multiSigWeb')
-      .controller('navCtrl', function ($scope, $sce, $location, $uibModal, Wallet, Web3Service, Config, CommunicationBus, Connection, Transaction, Utils) {
+      .controller('navCtrl', function ($scope, $sce, $location, $uibModal, Wallet, Web3Service, Config, CommunicationBus, Connection, Transaction, Utils, $rootScope) {
         $scope.navCollapsed = true;
         $scope.isElectron = isElectron;
         $scope.config = Config.getConfiguration();
@@ -117,6 +117,10 @@
           Transaction.getEthereumChain().then(
             function (data) {
               $scope.ethereumChain = data;
+              $rootScope.chain = data.chain;
+              $rootScope.symbol = data.symbol;
+              $rootScope.chainId = data.chainId;
+              $rootScope.dpath = data.dpath;
               txDefaultOrig.walletFactoryAddress = data.walletFactoryAddress;
               loadConfiguration(); // config.js
             }

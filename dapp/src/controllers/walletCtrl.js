@@ -131,6 +131,9 @@
           $scope.updateParams();
           $rootScope.alreadyLogged = true;
 
+          $scope.chain = $rootScope.chain;
+          $scope.chainId = $rootScope.chainId;
+
           // The localStorage item is setted in
           // notificationsSignupConfirmationCtrl
           if (localStorage.getItem("show-signup-success")) {
@@ -200,7 +203,7 @@
 
           // Convert transactions's addresses too
           var transactions = JSON.parse(localStorage.getItem("transactions")) || {};
-          transactions = Web3Service.toChecksumAddress(transactions);
+          transactions = Web3Service.toChecksumAddress(transactions, $rootScope.chainId);
           localStorage.setItem('transactions', JSON.stringify(transactions));
         };
 
@@ -294,7 +297,7 @@
             scope: $scope,
             controller: function ($scope, $uibModalInstance) {
               $scope.ok = function () {
-                $scope.old.address = Web3Service.toChecksumAddress($scope.old.address);
+                $scope.old.address = Web3Service.toChecksumAddress($scope.old.address, $rootScope.chainId);
                 Wallet.restore($scope.old, function (e) {
                   if (e) {
                     Utils.dangerAlert(e);

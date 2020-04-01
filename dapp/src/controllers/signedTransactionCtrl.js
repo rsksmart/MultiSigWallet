@@ -2,7 +2,7 @@
   function () {
     angular
     .module("multiSigWeb")
-    .controller("signedTransactionCtrl", function (Web3Service, $scope, Wallet, Utils, Transaction, $uibModalInstance) {
+    .controller("signedTransactionCtrl", function (Web3Service, $scope, Wallet, Utils, Transaction, $uibModalInstance, $rootScope) {
       $scope.sendRawTransaction = function () {
         Transaction.sendRawTransaction($scope.tx, function (e, txHash) {
           if (e) {
@@ -18,7 +18,7 @@
                 Web3Service.web3.eth.getCode(receipt.contractAddress, function (e, code){
                   if (code.length > 100 && Wallet.json.multiSigDailyLimit.binHex.slice(-992) == code.slice(-992)){
                     Utils.success("Wallet deployed at address: " + receipt.contractAddress);
-                    Wallet.updateWallet({name: "Offline wallet", address: receipt.contractAddress, owners: {}});
+                    Wallet.updateWallet({name: "Offline wallet", address: receipt.contractAddress, owners: {}, chainId: $rootScope.chainId});
                     Transaction.update(txHash, {multisig: receipt.contractAddress});
                   }
                   else {
@@ -29,7 +29,7 @@
               else if( receipt.decodedLogs.length && receipt.decodedLogs[0] && receipt.decodedLogs[0].events && receipt.decodedLogs[0].events.length > 1 && receipt.decodedLogs[0].events[1].name == "instantiation"){
                 var walletAddress = receipt.decodedLogs[0].events[1].value;
                 Utils.success("Wallet deployed at address:" + walletAddress);
-                Wallet.updateWallet({name: "Factory wallet", address: walletAddress, owners: {}});
+                Wallet.updateWallet({name: "Factory wallet", address: walletAddress, owners: {}, chainId: $rootScope.chainId});
                 Transaction.update(txHash, {multisig: walletAddress});
               }
               else {

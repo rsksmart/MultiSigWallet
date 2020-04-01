@@ -2,7 +2,7 @@
   function () {
     angular
     .module("multiSigWeb")
-    .controller("addTokenCtrl", function (Web3Service, $scope, $uibModalInstance, Wallet, Token, token, wallet) {
+    .controller("addTokenCtrl", function (Web3Service, $scope, $uibModalInstance, Wallet, Token, token, wallet, $rootScope) {
 
       $scope.wallet = wallet;
 
@@ -12,7 +12,7 @@
 
       if (Object.keys(token).length) {
         $scope.editMode = true;
-        token.address = Web3Service.toChecksumAddress(token.address);
+        token.address = Web3Service.toChecksumAddress(token.address, $rootScope.chainId);
       }
 
       $scope.editToken = {}; // Used for editing data
@@ -64,7 +64,7 @@
 
       $scope.ok = function () {
         // Convert token address to checksum address
-        $scope.editToken.address = Web3Service.toChecksumAddress($scope.editToken.address);
+        $scope.editToken.address = Web3Service.toChecksumAddress($scope.editToken.address, $rootScope.chainId);
         
         $scope.wallet.tokens[$scope.editToken.address] = $scope.editToken;
         Wallet.updateWallet($scope.wallet);

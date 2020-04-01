@@ -2,7 +2,7 @@
   function () {
     angular
     .module("multiSigWeb")
-    .controller("addressBookCtrl", function ($scope, $uibModal) {
+    .controller("addressBookCtrl", function ($scope, $uibModal, $rootScope) {
 
       $scope.addressBook = JSON.parse(localStorage.getItem('addressBook') || '{}');
 
@@ -52,14 +52,14 @@
               // Check whether it is a contract, a token or a EOA
               var checksumAddress;
               try {
-                checksumAddress = Web3Service.toChecksumAddress($scope.book.address);
+                checksumAddress = Web3Service.toChecksumAddress($scope.book.address, $rootScope.chainId);
               } catch (error) {
                 Utils.dangerAlert(error);
               }
 
-              if (!Web3Service.web3.isAddress($scope.book.address)) {
+              if (!Web3Service.isAddress($scope.book.address, $rootScope.chainId)) {
                 // Show alert
-                Utils.dangerAlert("Invalid Ethereum Address");
+                Utils.dangerAlert("Invalid checksummed address");
                 return;
               }
 

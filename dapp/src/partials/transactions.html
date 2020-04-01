@@ -54,7 +54,7 @@
           ng-bind-html="getDestinationOrContract(transaction) | dashIfEmpty">
           </a>
         </td>
-        <td ng-bind-html="transaction.info.value | ether | dashIfEmpty">
+        <td ng-bind-html="transaction.info.value | ether:chain | dashIfEmpty">
         </td>
         <td>
           <div ng-show="transaction.decodedData.title" class="row">
@@ -67,7 +67,7 @@
                 {{param.name}}:
                 <span popover-enable="param.value" popover-trigger="'mouseenter'"
                   uib-popover-template="'partials/paramValueData.html'">
-                  {{param.value|addressCanBeOwner:wallet|logParam:(param.name == 'value' && transaction.decodedData.title == 'submitTransaction')}}
+                  {{param.value|addressCanBeOwner:wallet|logParam:(param.name == 'value' && transaction.decodedData.title == 'submitTransaction'):chain}}
                 </span>
               </li>
             </ul>
@@ -100,7 +100,7 @@
                 <li ng-repeat="param in log.events track by $index">
                   {{param.name}}:
                   <span uib-popover="{{param.value}}" popover-enable="param.value && param.value.toString().length > 7" popover-trigger="'mouseenter'">
-                    {{param.value|addressCanBeOwner|logParam:(param.name == 'value')}}
+                    {{param.value|addressCanBeOwner|logParam:(param.name == 'value'):chain}}
                   </span>
                 </li>
               </ul>

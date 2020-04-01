@@ -14,7 +14,7 @@
       <input id="required" type="number" class="form-control" ng-min="1" ng-max="{{maxAllowedConfirmations}}" ng-model="confirmations" required />
     </div>
     <div class="form-group">
-      <label for="daily-limit"> Daily limit (ETH) </label>
+      <label for="daily-limit"> Daily limit ({{symbol}}) </label>
       <input id="daily-limit" type="number" class="form-control" ng-min="0" max="999999999999999" ng-model="limit" required />
     </div>
     <div class="panel panel-default">
