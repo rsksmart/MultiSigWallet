@@ -1349,6 +1349,51 @@ angular.module('multiSigWeb').run(['$templateCache', function($templateCache) {
     "</div>\n"
   );
 
+  $templateCache.put('src/partials/modals/disclaimerCustomized.html',
+    "<div class=\"modal-header\">\n" +
+    "  <div class=\"bootstrap-dialog-header\">\n" +
+    "    <div class=\"bootstrap-dialog-title\">Disclaimer</div>\n" +
+    "  </div>  \n" +
+    "</div>\n" +
+    "<div class=\"modal-body\">\n" +
+    "  <p>\n" +
+    "      For using the application, you have to understand and accept the conditions.\n" +
+    "  </p>\n" +
+    "  <p>\n" +
+    "    Don't use the wallet hosted at this URL to sign transactions.\n" +
+    "    Use this hosted application only to check the status of your wallet.\n" +
+    "    Use a locally installed version for signing.\n" +
+    "    A version can be obtained <a href=\"https://github.com/rsksmart/MultiSigWallet\" target=\"_blank\">here</a>.\n" +
+    "  </p>\n" +
+    "  <p>\n" +
+    "    This is a customized version for a better user experience in RSK network\n" +
+    "    and <strong>is not supported by Gnosis team</strong>.\n" +
+    "  </p>\n" +
+    "  <p>\n" +
+    "    Use at your own risk.\n" +
+    "  </p>\n" +
+    "  <div class=\"checkbox\">\n" +
+    "      <label>\n" +
+    "        <input type=\"checkbox\" ng-model=\"useCustomized\">\n" +
+    "        I understand this customization is an example for developers\n" +
+    "      </label>\n" +
+    "  </div>\n" +
+    "  <div class=\"checkbox\">\n" +
+    "      <label>\n" +
+    "        <input type=\"checkbox\" ng-model=\"gnosisSupport\">\n" +
+    "        I understand Gnosis doesn't support this customization\n" +
+    "      </label>\n" +
+    "  </div>\n" +
+    "  \n" +
+    "\n" +
+    "</div>\n" +
+    "<div class=\"modal-footer\">\n" +
+    "  <button type=\"button\" ng-click=\"ok()\" class=\"btn btn-default\" id=\"terms-button\" ng-disabled=\"!useCustomized || !gnosisSupport\">\n" +
+    "    Continue\n" +
+    "  </button>\n" +
+    "</div>\n"
+  );
+
 
   $templateCache.put('src/partials/modals/disclaimerElectron.html',
     "<div class=\"modal-header\">\n" +

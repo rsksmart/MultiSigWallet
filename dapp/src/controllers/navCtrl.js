@@ -52,42 +52,71 @@
 
         // If not terms acepted, prompt disclaimer
         var gdprTermsAccepted = localStorage.getItem("gdprTermsAccepted");
+        var customizationAccepted = localStorage.getItem("customizationAccepted");
+
+        if (!customizationAccepted) {
+          $uibModal.open({
+            templateUrl: 'partials/modals/disclaimerCustomized.html',
+            size: 'md',
+            backdrop: 'static',
+            windowClass: 'bootstrap-dialog type-danger',
+            controller: function ($scope, $uibModalInstance) {
+              $scope.ok = function () {
+                $uibModalInstance.close($scope.walletOption);
+                localStorage.setItem("customizationAccepted", true);
+              };
+              $scope.websites = txDefault.websites;
+
+              $scope.openTerms = function() {
+                Utils.openResource(txDefault.resources.termsOfUse);
+              }
+
+              $scope.openPolicy = function () {
+                Utils.openResource(txDefault.resources.privacyPolicy);
+              }
+
+              $scope.openImprint = function () {
+                Utils.openResource(txDefault.resources.imprint);
+              }
+            }
+          });
+        }
 
         if (!gdprTermsAccepted) {
-            $uibModal.open({
-              templateUrl: isElectron ? 'partials/modals/disclaimerElectron.html' : 'partials/modals/disclaimer.html',
-              size: 'md',
-              backdrop: 'static',
-              windowClass: 'bootstrap-dialog type-danger',
-              controller: function ($scope, $uibModalInstance) {
-                if (isElectron) {
-                  $scope.ok = function () {
-                    $uibModalInstance.close($scope.walletOption);
-                    localStorage.setItem("gdprTermsAccepted", true);
-                    // call web3 selection modal
-                    showWeb3SelectionModal();
-                  };
-                } else {
-                  $scope.ok = function () {
-                    $uibModalInstance.close($scope.walletOption);
-                    localStorage.setItem("gdprTermsAccepted", true);
-                  };
-                  $scope.websites = txDefault.websites;
-                }
-
-                $scope.openTerms = function() {
-                  Utils.openResource(txDefault.resources.termsOfUse);
-                }
-        
-                $scope.openPolicy = function () {
-                  Utils.openResource(txDefault.resources.privacyPolicy);
-                }
-        
-                $scope.openImprint = function () {
-                  Utils.openResource(txDefault.resources.imprint);
-                }
+          $uibModal.open({
+            templateUrl: isElectron ? 'partials/modals/disclaimerElectron.html' : 'partials/modals/disclaimer.html',
+            size: 'md',
+            backdrop: 'static',
+            windowClass: 'bootstrap-dialog type-danger',
+            controller: function ($scope, $uibModalInstance) {
+              if (isElectron) {
+                $scope.ok = function () {
+                  $uibModalInstance.close($scope.walletOption);
+                  localStorage.setItem("gdprTermsAccepted", true);
+                  // call web3 selection modal
+                  showWeb3SelectionModal();
+                };
+              } else {
+                $scope.ok = function () {
+                  $uibModalInstance.close($scope.walletOption);
+                  localStorage.setItem("gdprTermsAccepted", true);
+                };
+                $scope.websites = txDefault.websites;
               }
-            });
+
+              $scope.openTerms = function() {
+                Utils.openResource(txDefault.resources.termsOfUse);
+              }
+
+              $scope.openPolicy = function () {
+                Utils.openResource(txDefault.resources.privacyPolicy);
+              }
+
+              $scope.openImprint = function () {
+                Utils.openResource(txDefault.resources.imprint);
+              }
+            }
+          });
         }
 
         /**
