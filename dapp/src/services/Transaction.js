@@ -346,7 +346,7 @@
                 data.walletFactoryAddress = txDefault.walletFactoryAddresses["rinkeby"].address;
                 data.dpath = "m/44'/60'/0'/0/0";
               }
-              else if (block && block.hash == "0x5d2570eee4405f2fb295b29ba683c688c0701a041c36f1e134625eb504ee6856") {
+              else if (block && block.hash == "0xf88529d4ab262c0f4d042e9d8d3f2472848eaafe1a9b7213f57617eb40a9f9e0") {
                 data.chain = "rsk";
                 data.name = "RSK Mainnet";
                 data.symbol = "R-BTC";
