@@ -355,7 +355,7 @@
                 data.walletFactoryAddress = txDefault.walletFactoryAddresses["rsk"].address;
                 data.dpath = "m/44'/137'/0'/0/0";
               }
-              else if (block && block.hash == "0x210bb2c943708687a05df3b7d8d7e2a280769b82691fd69d3dcfe76963eac521") {
+              else if (block && block.hash == "0xcabb7fbe88cd6d922042a32ffc08ce8b1fbb37d650b9d4e7dbfe2a7469adfa42") {
                 data.chain = "trsk";
                 data.name = "RSK Testnet";
                 data.symbol = "tR-BTC";
